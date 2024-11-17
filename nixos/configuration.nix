@@ -68,24 +68,93 @@
     nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
   };
 
-  # FIXME: Add the rest of your current configuration
+  # Bootloader
   boot.loader = {
+    timeout = 20;
     efi.canTouchEfiVariables = true;
 
     grub = {
       enable = true;
-      devices = [ "nodev" ];
-      efiSupport = true;
       useOSProber = true;
+      efiSupport = true;
+      devices = [ "nodev" ];
+
+     backgroundColor = "#000000";
+     splashImage = null;
     };
   };
 
-  # TODO: Set your hostname
+  # Network manager
+  networking.networkmanager.enable = true;
+
+  # Pipewire
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    audio.enable = true;
+    # If you want to use JACK applications, uncomment this
+    # jack.enable = true;
+  };
+
+  # Video drivers
+  services.xserver.videoDrivers = [ "displaylink" "nvidia" ];
+
+  # Enable OpenGL
+  hardware.graphics.enable = true;
+
+  # Nvidia
+  hardware.nvidia = {
+
+    # Setting up nvidia prime
+    prime = {
+      sync.enable = true;
+ 
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+
+    # Modesetting is required.
+    modesetting.enable = true;
+
+    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+    # Enable this if you have graphical corruption issues or application crashes after waking
+    # up from sleep. This fixes it by saving the entire VRAM memory to /tmp/ instead 
+    # of just the bare essentials.
+    powerManagement.enable = false;
+
+    # Fine-grained power management. Turns off GPU when not in use.
+    # Experimental and only works on modern Nvidia GPUs (Turing or newer).
+    powerManagement.finegrained = false;
+
+    # Use the NVidia open source kernel module (not to be confused with the
+    # independent third-party "nouveau" open source driver).
+    # Support is limited to the Turing and later architectures. Full list of 
+    # supported GPUs is at: 
+    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+    # Only available from driver 515.43.04+
+    # Currently alpha-quality/buggy, so false is currently the recommended setting.
+    open = true;
+
+    # Enable the Nvidia settings menu,
+	# accessible via `nvidia-settings`.
+    nvidiaSettings = true;
+
+    # Optionally, you may need to select the appropriate driver version for your specific GPU.
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+
+  # Automatic login for the user on tty1
+  systemd.services."getty@tty1" = {
+    overrideStrategy = "asDropin";
+    serviceConfig.ExecStart = ["" "@${pkgs.util-linux}/sbin/agetty agetty --login-program ${config.services.getty.loginProgram} --autologin verz --noclear --keep-baud %I 115200,38400,9600 $TERM"];
+  };
+
+  # Hostname
   networking.hostName = "leet";
 
-  # Enable NetworkManager
-  networking.networkmanager.enable = true;
-  
   # Programs
   programs = {
     zsh = {
@@ -100,24 +169,21 @@
   environment.systemPackages = with pkgs; [
     git
     kitty
+
+    intel-gpu-tools
   ];
 
-  # Enable automatic login for the user.
-  services.getty.autologinUser = "verz";
-
+  
   # TODO: Configure your system-wide user settings (groups, etc), add more users as needed.
   users.defaultUserShell = pkgs.zsh;
   users.users = {
     # FIXME: Replace with your username
     verz = {
-      # TODO: You can set an initial password for your user.
-      # If you do, you can skip setting a root password by passing '--no-root-passwd' to nixos-install.
-      # Be sure to change it (using passwd) after rebooting!
       isNormalUser = true;
       openssh.authorizedKeys.keys = [
-        # TODO: Add your SSH public key(s) here, if you plan on using SSH to connect
+        # SSH public keys
+	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0dfTAEinWBwmVfbLDrhTFf/Qg2A46vd/I2pviktCtd verzleet@gmail.com"
       ];
-      # TODO: Be sure to add any other groups you need (such as networkmanager, audio, docker, etc)
       extraGroups = ["wheel" "networkmanager"];
       packages = with pkgs; [
         neovim
