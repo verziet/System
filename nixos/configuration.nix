@@ -146,6 +146,20 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
+  # Setting up the uinput group, required for kanata
+  services.udev.extraRules = ''
+    KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+  '';
+
+  # nix flatpak
+  services.flatpak.enable = true;
+
+  services.flatpak.packages = [
+    { appId = "com.spotify.Client"; origin = "flathub";  }
+    { appId = "io.github.zen_browser.zen"; origin = "flathub";  }
+    { appId = "com.stremio.Stremio"; origin = "flathub";  }
+  ];
+
   # Automatic login for the user on tty1
   systemd.services."getty@tty1" = {
     overrideStrategy = "asDropin";
@@ -173,7 +187,9 @@
     intel-gpu-tools
   ];
 
-  
+  # Creating groups
+  users.groups.uinput = {};
+
   # TODO: Configure your system-wide user settings (groups, etc), add more users as needed.
   users.defaultUserShell = pkgs.zsh;
   users.users = {
@@ -184,12 +200,13 @@
         # SSH public keys
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0dfTAEinWBwmVfbLDrhTFf/Qg2A46vd/I2pviktCtd verzleet@gmail.com"
       ];
-      extraGroups = ["wheel" "networkmanager"];
+      extraGroups = ["wheel" "networkmanager" "audio" "input" "uinput"];
       packages = with pkgs; [
+	kanata
+	spicetify-cli
+
         neovim
         yazi
-
-	firefox
       ];
     };
   };

@@ -11,12 +11,16 @@
     # Home manager
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # nix-flatpak
+    nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/0.4.1.tar.gz";
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
+    nix-flatpak,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -57,6 +61,8 @@
         modules = [
           # > Our main nixos configuration file <
           ./nixos/configuration.nix
+	  # nix-flatpak
+	  nix-flatpak.nixosModules.nix-flatpak
         ];
       };
     };
