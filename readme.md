@@ -18,6 +18,6 @@ reboot # boot into NixOS, grub should work now
 su - # switch to root
 passwd username # set password for user, replace username
 exit # go back to user account
-sudo mv /etc/nixos/System $HOME # move System directory to home directory for easier access
+sudo mv /etc/nixos/System $HOME # (actually problem with permissions later) move System directory to home directory for easier access
 sudo nixos-rebuild switch --flake ./System#hostname # this fixes the grub Windows entries
 ```
