@@ -100,7 +100,7 @@
   };
 
   # Video drivers
-  services.xserver.videoDrivers = [ "displaylink" "nvidia" ];
+  services.xserver.videoDrivers = [ "displaylink" "nvidia" "modesetting" ];
 
   # Enable OpenGL
   hardware.graphics.enable = true;
@@ -205,8 +205,14 @@
 	kanata
 	spicetify-cli
 
+	swww
+
+	firefox
+
         neovim
         yazi
+	wofi
+	gnome-control-center
       ];
     };
   };
