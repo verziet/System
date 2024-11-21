@@ -12,6 +12,12 @@
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # spicetify nix
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # nix-flatpak
     nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/0.4.1.tar.gz";
   };
@@ -63,6 +69,8 @@
           ./nixos/configuration.nix
 	  # nix-flatpak
 	  nix-flatpak.nixosModules.nix-flatpak
+	  # spicetify nix
+	  inputs.spicetify-nix.nixosModules.default
         ];
       };
     };

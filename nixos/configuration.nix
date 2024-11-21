@@ -205,6 +205,7 @@
 	kanata
 	spicetify-cli
 
+	pywal
 	swww
 
 	firefox
